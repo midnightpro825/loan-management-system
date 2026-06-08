@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - FastLoan</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
+        body {
+            background: linear-gradient(135deg, #0b2b40, #1a4b6e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        h1 { color: #0f2c39; margin-bottom: 0.5rem; }
+        .subtitle { color: #666; margin-bottom: 2rem; }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 0.9rem;
+            background: #0f2c39;
+            color: white;
+            border: none;
+            border-radius: 0.8rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover { background: #1b4f66; }
+        .error { color: red; margin-top: 1rem; text-align: center; }
+        .success { color: green; margin-top: 1rem; text-align: center; }
+        .login-link { text-align: center; margin-top: 1rem; }
+        a { color: #0f2c39; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📝 Create Account</h1>
+    <p class="subtitle">Join FastLoan to get quick loans</p>
+    <form id="registerForm">
+        <input type="text" id="fullname" placeholder="Full Name" required>
+        <input type="email" id="email" placeholder="Email Address" required>
+        <input type="password" id="password" placeholder="Password (min 6 characters)" required>
+        <input type="tel" id="phone" placeholder="Phone Number">
+        <input type="text" id="work_place" placeholder="Place of Work">
+        <button type="submit">Create Account</button>
+        <div id="message"></div>
+    </form>
+    <p class="login-link">Already have an account? <a href="login.html">Login here</a></p>
+</div>
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullname = document.getElementById('fullname').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const phone = document.getElementById('phone').value;
+        const work_place = document.getElementById('work_place').value;
+        if (password.length < 6) {
+            document.getElementById('message').innerHTML = '<div class="error">Password must be at least 6 characters</div>';
+            return;
+        }
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullname, email, password, phone, work_place })
+            });
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('message').innerHTML = '<div class="success">✅ Account created! <a href="login.html">Login here</a></div>';
+                document.getElementById('registerForm').reset();
+            } else {
+                document.getElementById('message').innerHTML = '<div class="error">❌ ' + data.error + '</div>';
+            }
+        } catch (error) {
+            document.getElementById('message').innerHTML = '<div class="error">❌ Server error</div>';
+        }
+    });
+</script>
+</body>
+</html>

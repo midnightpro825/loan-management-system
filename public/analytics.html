@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - FastLoan</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-primary: #0f2c39;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --navbar-bg: #0f2c39;
+            --navbar-text: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a2e;
+            --bg-card: #16213e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --border-color: #2a2a4a;
+            --navbar-bg: #0f3460;
+            --navbar-text: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
+        body {
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--navbar-bg);
+            color: var(--navbar-text);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .logo span { font-size: 1.8rem; }
+        .logo h2 { font-size: 1.5rem; }
+        .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+        .nav-links a:hover, .nav-links a.active { background: rgba(255,255,255,0.2); }
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--navbar-text);
+            border-radius: 2rem;
+            padding: 0.3rem 0.8rem;
+            cursor: pointer;
+            color: var(--navbar-text);
+        }
+
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card h3 { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: var(--text-primary); }
+        .stat-change { font-size: 0.8rem; margin-top: 0.5rem; color: #28a745; }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chart-card h3 { margin-bottom: 1rem; color: var(--text-primary); }
+        canvas { max-height: 300px; width: 100%; }
+
+        /* Export Buttons */
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .export-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+        }
+        .export-btn.excel { background: #28a745; }
+        .export-btn.csv { background: #17a2b8; }
+        .export-btn.pdf { background: #dc3545; }
+
+        /* Recent Activity Table */
+        .recent-table {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .recent-table h3 { margin-bottom: 1rem; color: var(--text-primary); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-primary); }
+
+        /* Toast */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #28a745; }
+        .toast-error { background: #dc3545; }
+        .toast-info { background: #17a2b8; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo"><span>📊</span><h2>Fast<span style="color:#6bcbff;">Loan</span></h2></div>
+    <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="analytics.html" class="active">Analytics</a>
+        <a href="admin.html">Admin Panel</a>
+        <a href="#" id="logoutBtn">Logout</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="export-buttons">
+        <button class="export-btn excel" onclick="exportToExcel()">📊 Export to Excel</button>
+        <button class="export-btn csv" onclick="exportToCSV()">📄 Export to CSV</button>
+        <button class="export-btn pdf" onclick="generatePDFReport()">📑 Generate PDF Report</button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><h3>Total Loans</h3><div class="stat-value" id="totalLoans">0</div><div class="stat-change" id="loanChange">-</div></div>
+        <div class="stat-card"><h3>Total Disbursed</h3><div class="stat-value" id="totalDisbursed">$0</div><div class="stat-change" id="disbursedChange">-</div></div>
+        <div class="stat-card"><h3>Total Repayments</h3><div class="stat-value" id="totalRepayments">$0</div><div class="stat-change" id="repaymentChange">-</div></div>
+        <div class="stat-card"><h3>Approval Rate</h3><div class="stat-value" id="approvalRate">0%</div><div class="stat-change" id="approvalChange">-</div></div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card"><h3>📈 Loan Applications Trend</h3><canvas id="trendChart"></canvas></div>
+        <div class="chart-card"><h3>🥧 Loan Distribution by Type</h3><canvas id="distributionChart"></canvas></div>
+        <div class="chart-card"><h3>💰 Payment Collection Trend</h3><canvas id="paymentTrendChart"></canvas></div>
+        <div class="chart-card"><h3>📊 Status Distribution</h3><canvas id="statusChart"></canvas></div>
+    </div>
+
+    <div class="recent-table">
+        <h3>📋 Recent Loan Applications</h3>
+        <div style="overflow-x: auto;">
+            <table id="recentLoansTable">
+                <thead><tr><th>Date</th><th>Borrower</th><th>Amount</th><th>Type</th><th>Status</th></tr></thead>
+                <tbody id="recentLoansBody"><tr><td colspan="5">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let trendChart, distributionChart, paymentTrendChart, statusChart;
+    let analyticsData = { loans: [], payments: [] };
+
+    async function loadAnalytics() {
+        try {
+            const [loansRes, paymentsRes] = await Promise.all([
+                fetch('/api/export/loans'),
+                fetch('/api/admin/payments')
+            ]);
+            const loans = await loansRes.json();
+            const payments = await paymentsRes.json();
+
+            analyticsData = { loans, payments };
+
+            // Calculate stats
+            const totalLoans = loans.length;
+            const approvedLoans = loans.filter(l => l.status === 'approved').length;
+            const totalDisbursed = loans.filter(l => l.status === 'approved').reduce((sum, l) => sum + l.amount, 0);
+            const totalRepayments = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
+            const approvalRate = totalLoans > 0 ? ((approvedLoans / totalLoans) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalLoans').innerText = totalLoans;
+            document.getElementById('totalDisbursed').innerText = '$' + totalDisbursed.toLocaleString();
+            document.getElementById('totalRepayments').innerText = '$' + totalRepayments.toLocaleString();
+            document.getElementById('approvalRate').innerText = approvalRate + '%';
+
+            // Prepare trend data
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthlyLoans = new Array(12).fill(0);
+            loans.forEach(loan => {
+                const month = new Date(loan.created_at).getMonth();
+                monthlyLoans[month]++;
+            });
+
+            // Loan distribution by type
+            const typeMap = {};
+            loans.forEach(loan => { typeMap[loan.loan_type_name] = (typeMap[loan.loan_type_name] || 0) + 1; });
+
+            // Status distribution
+            const statusMap = { pending: 0, approved: 0, rejected: 0 };
+            loans.forEach(loan => { statusMap[loan.status]++; });
+
+            // Payment trend
+            const monthlyPayments = new Array(12).fill(0);
+            payments.forEach(payment => {
+                const month = new Date(payment.created_at).getMonth();
+                monthlyPayments[month] += payment.amount;
+            });
+
+            updateCharts(months, monthlyLoans, typeMap, statusMap, monthlyPayments);
+            loadRecentLoans(loans);
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+            showToast('Error loading analytics data', 'error');
+        }
+    }
+
+    function updateCharts(months, monthlyLoans, typeMap, statusMap, monthlyPayments) {
+        if (trendChart) trendChart.destroy();
+        if (distributionChart) distributionChart.destroy();
+        if (paymentTrendChart) paymentTrendChart.destroy();
+        if (statusChart) statusChart.destroy();
+
+        const ctx1 = document.getElementById('trendChart').getContext('2d');
+        trendChart = new Chart(ctx1, {
+            type: 'line',
+            data: { labels: months, datasets: [{ label: 'Loan Applications', data: monthlyLoans, borderColor: '#0f2c39', backgroundColor: 'rgba(15,44,57,0.1)', tension: 0.3, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+
+        const ctx2 = document.getElementById('distributionChart').getContext('2d');
+        distributionChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: { labels: Object.keys(typeMap), datasets: [{ data: Object.values(typeMap), backgroundColor: ['#0f2c39', '#1a4b6e', '#6bcbff', '#28a745'] }] },
+            options: { responsive: true }
+        });
+
+        const ctx3 = document.getElementById('paymentTrendChart').getContext('2d');
+        paymentTrendChart = new Chart(ctx3, {
+            type: 'bar',
+            data: { labels: months, datasets: [{ label: 'Payments ($)', data: monthlyPayments, backgroundColor: '#28a745' }] },
+            options: { responsive: true }
+        });
+
+        const ctx4 = document.getElementById('statusChart').getContext('2d');
+        statusChart = new Chart(ctx4, {
+            type: 'pie',
+            data: { labels: ['Pending', 'Approved', 'Rejected'], datasets: [{ data: [statusMap.pending, statusMap.approved, statusMap.rejected], backgroundColor: ['#ffc107', '#28a745', '#dc3545'] }] },
+            options: { responsive: true }
+        });
+    }
+
+    function loadRecentLoans(loans) {
+        const tbody = document.getElementById('recentLoansBody');
+        const recent = loans.slice(0, 10);
+        if (recent.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">No loan applications yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = recent.map(loan => `
+            <tr>
+                <td>${new Date(loan.created_at).toLocaleDateString()}</td>
+                <td>${loan.fullname}</td>
+                <td>$${loan.amount}</td>
+                <td>${loan.loan_type_name}</td>
+                <td><span style="color:${loan.status === 'approved' ? 'green' : loan.status === 'rejected' ? 'red' : 'orange'}">${loan.status.toUpperCase()}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    async function exportToExcel() {
+        try {
+            const response = await fetch('/api/export/loans');
+            const loans = await response.json();
+            let csv = 'ID,Borrower,Email,Type,Amount,Status,Date\n';
+            loans.forEach(loan => {
+                csv += `${loan.id},${loan.fullname},${loan.email},${loan.loan_type_name},${loan.amount},${loan.status},${new Date(loan.created_at).toLocaleDateString()}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `loan_report_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Excel report downloaded!', 'success');
+        } catch (error) {
+            showToast('Error generating report', 'error');
+        }
+    }
+
+    async function exportToCSV() {
+        try {
+            const response = await fetch('/api/export/loans');
+            const loans = await response.json();
+            let csv = 'ID,Borrower,Email,Type,Amount,Status,Date\n';
+            loans.forEach(loan => {
+                csv += `${loan.id},${loan.fullname},${loan.email},${loan.loan_type_name},${loan.amount},${loan.status},${new Date(loan.created_at).toLocaleDateString()}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `loan_report_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV report downloaded!', 'success');
+        } catch (error) {
+            showToast('Error generating CSV', 'error');
+        }
+    }
+
+    async function generatePDFReport() {
+        showToast('Generating PDF report...', 'info');
+        try {
+            const response = await fetch('/api/export/loans');
+            const loans = await response.json();
+            const totalDisbursed = loans.filter(l => l.status === 'approved').reduce((sum, l) => sum + l.amount, 0);
+            const approvalRate = loans.length > 0 ? ((loans.filter(l => l.status === 'approved').length / loans.length) * 100).toFixed(1) : 0;
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(20);
+            doc.text('FastLoan - Monthly Report', 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 35);
+            doc.text(`Total Loans: ${loans.length}`, 20, 55);
+            doc.text(`Total Disbursed: $${totalDisbursed.toLocaleString()}`, 20, 65);
+            doc.text(`Approval Rate: ${approvalRate}%`, 20, 75);
+            doc.save(`loan_report_${new Date().toISOString().slice(0,10)}.pdf`);
+            showToast('PDF report downloaded!', 'success');
+        } catch (error) {
+            showToast('Error generating PDF', 'error');
+        }
+    }
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification toast-${type}`;
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        const btn = document.querySelector('.theme-toggle');
+        if (btn) btn.innerHTML = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        const btn = document.querySelector('.theme-toggle');
+        if (btn) btn.innerHTML = '☀️ Light Mode';
+    }
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = 'login.html';
+    });
+
+    loadAnalytics();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>

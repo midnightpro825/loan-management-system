@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - FastLoan Management</title>
+    <style>
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-primary: #0f2c39;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --navbar-bg: #0f2c39;
+            --navbar-text: #ffffff;
+            --table-header: #0f2c39;
+            --tab-bg: #1a4b6e;
+            --tab-active-bg: #6bcbff;
+            --tab-active-text: #0f2c39;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a2e;
+            --bg-card: #16213e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --border-color: #2a2a4a;
+            --navbar-bg: #0f3460;
+            --navbar-text: #e0e0e0;
+            --table-header: #1a4b6e;
+            --tab-bg: #2d6a8f;
+            --tab-active-bg: #6bcbff;
+            --tab-active-text: #0f2c39;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
+        body {
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--navbar-bg);
+            color: var(--navbar-text);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .logo span { font-size: 1.8rem; }
+        .logo h2 { font-size: 1.5rem; }
+        .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+        .nav-links a:hover, .nav-links a.active { background: rgba(255,255,255,0.2); }
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--navbar-text);
+            border-radius: 2rem;
+            padding: 0.3rem 0.8rem;
+            cursor: pointer;
+            color: var(--navbar-text);
+        }
+
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: var(--tab-bg);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background: var(--button-hover); }
+        .tab-btn.active { background: var(--tab-active-bg); color: var(--tab-active-text); }
+
+        .tab-content {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: none;
+            transition: background 0.3s ease;
+        }
+        .tab-content.active { display: block; }
+
+        .table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { 
+            background: var(--table-header); 
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .status-pending { color: #ffc107; font-weight: bold; }
+        .status-approved { color: #28a745; font-weight: bold; }
+        .status-rejected { color: #dc3545; font-weight: bold; }
+
+        .refresh-btn { 
+            margin-bottom: 1rem; 
+            padding: 0.5rem 1rem; 
+            background: #0f2c39; 
+            color: white; 
+            border: none; 
+            border-radius: 0.5rem; 
+            cursor: pointer; 
+        }
+        .refresh-btn:hover { background: #1b4f66; }
+        .approve-btn { background: #28a745; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 0.3rem; cursor: pointer; margin-right: 0.3rem; }
+        .reject-btn { background: #dc3545; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 0.3rem; cursor: pointer; }
+        .confirm-btn { background: #28a745; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 0.3rem; cursor: pointer; }
+        .delete-btn { background: #dc3545; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 0.3rem; cursor: pointer; }
+
+        input, select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.3rem;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: bold; color: var(--text-primary); }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin: 1rem 0 0.5rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--text-primary);
+        }
+
+        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 0.3rem; font-size: 0.7rem; font-weight: bold; }
+        .badge-mobile { background: #ffc107; color: #0f2c39; }
+        .badge-card { background: #28a745; color: white; }
+        .badge-bank { background: #0f2c39; color: white; }
+        .payment-details { font-size: 0.8rem; color: var(--text-secondary); max-width: 200px; word-break: break-word; }
+
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--border-color); border-radius: 50%; border-top-color: #0f2c39; animation: spin 0.8s ease infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-container { text-align: center; padding: 2rem; }
+        .loading-container .spinner { width: 40px; height: 40px; }
+
+        .toast-notification { position: fixed; bottom: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; font-weight: bold; z-index: 10000; animation: slideIn 0.3s ease; }
+        .toast-success { background: #28a745; }
+        .toast-error { background: #dc3545; }
+        .toast-info { background: #17a2b8; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .access-denied { text-align: center; padding: 50px; background: var(--bg-card); border-radius: 1rem; margin: 2rem; }
+        .access-denied h1 { color: #dc3545; margin-bottom: 1rem; }
+        .access-denied a { display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background: #0f2c39; color: white; text-decoration: none; border-radius: 0.5rem; }
+
+        hr { margin: 1.5rem 0; border-color: var(--border-color); }
+
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; text-align: center; }
+            .tabs { justify-content: center; }
+            .tab-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+            th, td { padding: 0.5rem; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo"><span>👑</span><h2>Fast<span style="color:#6bcbff;">Loan</span> Admin</h2></div>
+    <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="admin.html" class="active">Admin Panel</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="messages.html">Messages</a>
+        <a href="#" id="logoutBtn">Logout</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </div>
+</div>
+
+<div id="adminContent" style="display: none;">
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('loans')">📋 Loan Applications</button>
+        <button class="tab-btn" onclick="showTab('users')">👥 Users & Wallet</button>
+        <button class="tab-btn" onclick="showTab('withdrawals')">💸 Withdrawal Requests</button>
+        <button class="tab-btn" onclick="showTab('payments')">💳 Payment Requests</button>
+        <button class="tab-btn" onclick="showTab('payslips')">📄 Payslip Management</button>
+        <button class="tab-btn" onclick="showTab('security')">🔒 Security Logs</button>
+    </div>
+    
+    <div id="loansTab" class="tab-content active">
+        <button class="refresh-btn" onclick="loadLoans()">🔄 Refresh Loans</button>
+        <div class="table-wrapper"><table id="loansTable"><thead><tr><th>ID</th><th>Borrower</th><th>Email</th><th>Loan Type</th><th>Amount</th><th>Monthly</th><th>Term</th><th>Status</th><th>Action</th></tr></thead><tbody id="loansBody"><tr><td colspan="9"><div class="loading-container"><div class="spinner"></div><p>Loading loans...</p></div></td></tr></tbody></table></div>
+    </div>
+    
+    <div id="usersTab" class="tab-content">
+        <button class="refresh-btn" onclick="loadUsers()">🔄 Refresh Users</button>
+        <div class="table-wrapper"><table id="usersTable"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Work Place</th><th>Wallet Balance</th><th>Add Funds</th></tr></thead><tbody id="usersBody"><tr><td colspan="7"><div class="loading-container"><div class="spinner"></div><p>Loading users...</p></div></td></tr></tbody></table></div>
+    </div>
+    
+    <div id="withdrawalsTab" class="tab-content">
+        <button class="refresh-btn" onclick="loadWithdrawals()">🔄 Refresh Withdrawals</button>
+        <div class="table-wrapper"><table id="withdrawalsTable"><thead><tr><th>ID</th><th>User</th><th>Email</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody id="withdrawalsBody"><tr><td colspan="9"><div class="loading-container"><div class="spinner"></div><p>Loading withdrawals...</p></div></td></tr></tbody></table></div>
+    </div>
+    
+    <div id="paymentsTab" class="tab-content">
+        <button class="refresh-btn" onclick="loadPayments()">🔄 Refresh Payments</button>
+        <div class="table-wrapper"><table id="paymentsTable"><thead><tr><th>ID</th><th>User</th><th>Email</th><th>Loan ID</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody id="paymentsBody"><tr><td colspan="10"><div class="loading-container"><div class="spinner"></div><p>Loading payments...</p></div></td></tr></tbody></table></div>
+    </div>
+    
+    <div id="payslipsTab" class="tab-content">
+        <div class="section-title">📄 Upload Payslip</div>
+        <form id="uploadPayslipForm" enctype="multipart/form-data">
+            <div class="form-group"><label>Select User</label><select id="payslipUserId" required></select></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                <div class="form-group"><label>Month</label><select id="payslipMonth" required><option value="">Select Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select></div>
+                <div class="form-group"><label>Year</label><input type="number" id="payslipYear" placeholder="Year" required></div>
+                <div class="form-group"><label>Amount ($)</label><input type="number" id="payslipAmount" placeholder="Amount" step="0.01" required></div>
+            </div>
+            <div class="form-group"><label>Upload File</label><input type="file" id="payslipFile" accept=".pdf,.jpg,.png" required></div>
+            <button type="submit" style="background:#28a745; padding:0.7rem;">📤 Upload Payslip</button>
+            <div id="payslipMessage"></div>
+        </form>
+        <hr>
+        <div class="section-title">📋 All Payslips</div>
+        <button class="refresh-btn" onclick="loadAllPayslips()">🔄 Refresh Payslips</button>
+        <div class="table-wrapper"><table id="payslipsTable"><thead><tr><th>ID</th><th>User</th><th>Month/Year</th><th>Amount</th><th>Upload Date</th><th>File</th><th>Action</th></tr></thead><tbody id="payslipsBody"><tr><td colspan="7"><div class="loading-container"><div class="spinner"></div><p>Loading payslips...</p></div></td></tr></tbody></table></div>
+    </div>
+    
+    <div id="securityTab" class="tab-content">
+        <button class="refresh-btn" onclick="loadSecurityLogs()">🔄 Refresh Logs</button>
+        <div class="table-wrapper"><table id="securityTable"><thead><tr><th>ID</th><th>User</th><th>Email</th><th>IP Address</th><th>Login Time</th><th>Logout Time</th></tr></thead><tbody id="securityBody"><tr><td colspan="6"><div class="loading-container"><div class="spinner"></div><p>Loading security logs...</p></div></td></tr></tbody></table></div>
+    </div>
+</div>
+</div>
+
+<div id="accessDenied" style="display: none;" class="access-denied">
+    <h1>🚫 Access Denied</h1>
+    <p>You do not have permission to access the Admin Panel.</p>
+    <p>Only administrators can access this page.</p>
+    <a href="dashboard.html">← Go to Dashboard</a>
+</div>
+
+<script>
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification toast-${type}`;
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = 'login.html';
+    });
+
+    // Check admin access first
+    async function checkAdminAccess() {
+        try {
+            const response = await fetch('/api/me');
+            if (!response.ok) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            const user = await response.json();
+            if (!user.isAdmin) {
+                document.getElementById('adminContent').style.display = 'none';
+                document.getElementById('accessDenied').style.display = 'block';
+                return false;
+            }
+            document.getElementById('adminContent').style.display = 'block';
+            document.getElementById('accessDenied').style.display = 'none';
+            return true;
+        } catch (error) {
+            window.location.href = 'login.html';
+            return false;
+        }
+    }
+
+    // ============ LOANS ============
+    async function loadLoans() {
+        try {
+            const res = await fetch('/api/admin/loans');
+            if (!res.ok) throw new Error('Unauthorized');
+            const loans = await res.json();
+            const tbody = document.getElementById('loansBody');
+            if (loans.length === 0) { tbody.innerHTML = '<tr><td colspan="9">No loans found</td></tr>'; return; }
+            tbody.innerHTML = '';
+            loans.forEach(loan => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = loan.id;
+                row.insertCell(1).innerText = loan.fullname;
+                row.insertCell(2).innerText = loan.email;
+                row.insertCell(3).innerText = loan.loan_type_name;
+                row.insertCell(4).innerText = `$${loan.amount}`;
+                row.insertCell(5).innerText = `$${loan.monthly_payment}`;
+                row.insertCell(6).innerText = `${loan.term_months} mo`;
+                row.insertCell(7).innerHTML = `<span class="status-${loan.status}">${loan.status.toUpperCase()}</span>`;
+                const select = document.createElement('select');
+                select.innerHTML = `<option value="pending" ${loan.status === 'pending' ? 'selected' : ''}>Pending</option><option value="approved" ${loan.status === 'approved' ? 'selected' : ''}>Approved</option><option value="rejected" ${loan.status === 'rejected' ? 'selected' : ''}>Rejected</option>`;
+                select.onchange = () => updateLoanStatus(loan.id, select.value);
+                row.insertCell(8).appendChild(select);
+            });
+        } catch (err) { showToast('Error loading loans', 'error'); }
+    }
+
+    async function updateLoanStatus(id, status) {
+        try {
+            await fetch(`/api/admin/loan/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+            showToast(`Loan ${id} updated to ${status}`, 'success');
+            loadLoans();
+        } catch (err) { showToast('Error updating status', 'error'); }
+    }
+
+    // ============ USERS ============
+    async function loadUsers() {
+        try {
+            const res = await fetch('/api/admin/users');
+            if (!res.ok) throw new Error('Unauthorized');
+            const users = await res.json();
+            const tbody = document.getElementById('usersBody');
+            if (users.length === 0) { tbody.innerHTML = '<tr><td colspan="7">No users found</td></tr>'; return; }
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = user.id;
+                row.insertCell(1).innerText = user.fullname;
+                row.insertCell(2).innerText = user.email;
+                row.insertCell(3).innerText = user.phone || '-';
+                row.insertCell(4).innerText = user.work_place || '-';
+                row.insertCell(5).innerHTML = `<strong>$${user.wallet_balance.toFixed(2)}</strong>`;
+                row.insertCell(6).innerHTML = `<input type="number" id="amount_${user.id}" placeholder="Amount" style="width:100px;"><button onclick="addWallet(${user.id})">Add Funds</button>`;
+            });
+        } catch (err) { showToast('Error loading users', 'error'); }
+    }
+
+    async function addWallet(userId) {
+        const amount = parseFloat(document.getElementById(`amount_${userId}`).value);
+        if (isNaN(amount) || amount <= 0) { showToast('Enter valid amount', 'error'); return; }
+        try {
+            await fetch('/api/admin/wallet/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId, amount }) });
+            showToast(`Added $${amount} to wallet`, 'success');
+            loadUsers();
+        } catch (err) { showToast('Error adding funds', 'error'); }
+    }
+
+    // ============ WITHDRAWALS ============
+    async function loadWithdrawals() {
+        try {
+            const res = await fetch('/api/admin/withdrawals');
+            if (!res.ok) throw new Error('Unauthorized');
+            const withdrawals = await res.json();
+            const tbody = document.getElementById('withdrawalsBody');
+            if (withdrawals.length === 0) { tbody.innerHTML = '<tr><td colspan="9">No pending withdrawals</td></tr>'; return; }
+            tbody.innerHTML = '';
+            withdrawals.forEach(w => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = w.id;
+                row.insertCell(1).innerText = w.fullname;
+                row.insertCell(2).innerText = w.email;
+                row.insertCell(3).innerText = `$${w.amount}`;
+                row.insertCell(4).innerText = w.method === 'bank' ? '🏦 Bank' : (w.method === 'card' ? '💳 Card' : '📱 Mobile');
+                row.insertCell(5).innerText = w.method === 'bank' ? `${w.bank_name} - ${w.account_number}` : (w.method === 'card' ? `****${w.card_number?.slice(-4)}` : w.mobile_number);
+                row.insertCell(6).innerText = new Date(w.created_at).toLocaleString();
+                row.insertCell(7).innerHTML = '<span style="color:#ffc107">PENDING</span>';
+                row.insertCell(8).innerHTML = `<button class="approve-btn" onclick="processWithdrawal(${w.id}, 'approved')">✅ Approve</button><button class="reject-btn" onclick="processWithdrawal(${w.id}, 'rejected')">❌ Reject</button>`;
+            });
+        } catch (err) { showToast('Error loading withdrawals', 'error'); }
+    }
+
+    async function processWithdrawal(id, status) {
+        const notes = prompt('Enter admin notes:');
+        try {
+            await fetch(`/api/admin/withdrawal/${id}/process`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status, admin_notes: notes || '' }) });
+            showToast(`Withdrawal ${status}`, 'success');
+            loadWithdrawals();
+            loadUsers();
+        } catch (err) { showToast('Error processing withdrawal', 'error'); }
+    }
+
+    // ============ PAYMENTS ============
+    async function loadPayments() {
+        try {
+            const res = await fetch('/api/admin/payments');
+            if (!res.ok) throw new Error('Unauthorized');
+            const payments = await res.json();
+            const tbody = document.getElementById('paymentsBody');
+            if (payments.length === 0) { tbody.innerHTML = '<tr><td colspan="10">No pending payments</td></tr>'; return; }
+            tbody.innerHTML = '';
+            payments.forEach(p => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = p.id;
+                row.insertCell(1).innerText = p.fullname;
+                row.insertCell(2).innerText = p.email;
+                row.insertCell(3).innerText = p.loan_id;
+                row.insertCell(4).innerText = `$${p.amount}`;
+                let badge = p.payment_method === 'mobile' ? '<span class="badge badge-mobile">📱 Mobile</span>' : (p.payment_method === 'card' ? '<span class="badge badge-card">💳 Card</span>' : '<span class="badge badge-bank">🏦 Bank</span>');
+                row.insertCell(5).innerHTML = badge;
+                row.insertCell(6).innerHTML = `<div class="payment-details">${p.payment_details || '-'}</div>`;
+                row.insertCell(7).innerText = new Date(p.created_at).toLocaleString();
+                row.insertCell(8).innerHTML = '<span style="color:#ffc107">PENDING</span>';
+                row.insertCell(9).innerHTML = `<button class="confirm-btn" onclick="confirmPayment(${p.id})">✅ Confirm</button>`;
+            });
+        } catch (err) { showToast('Error loading payments', 'error'); }
+    }
+
+    async function confirmPayment(id) {
+        const tid = prompt('Enter transaction ID:');
+        const notes = prompt('Enter notes:');
+        try {
+            await fetch(`/api/admin/payment/${id}/confirm`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transaction_id: tid || '', admin_notes: notes || '' }) });
+            showToast('Payment confirmed', 'success');
+            loadPayments();
+        } catch (err) { showToast('Error confirming payment', 'error'); }
+    }
+
+    // ============ PAYSLIPS ============
+    async function loadUsersForPayslip() {
+        try {
+            const res = await fetch('/api/admin/users-list');
+            const users = await res.json();
+            const select = document.getElementById('payslipUserId');
+            select.innerHTML = '<option value="">Select User</option>';
+            users.forEach(u => select.innerHTML += `<option value="${u.id}">${u.fullname} (${u.email})</option>`);
+        } catch (err) { console.error(err); }
+    }
+
+    document.getElementById('uploadPayslipForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData();
+        fd.append('user_id', document.getElementById('payslipUserId').value);
+        fd.append('month', document.getElementById('payslipMonth').value);
+        fd.append('year', document.getElementById('payslipYear').value);
+        fd.append('amount', document.getElementById('payslipAmount').value);
+        fd.append('payslip', document.getElementById('payslipFile').files[0]);
+        try {
+            const res = await fetch('/api/admin/upload-payslip', { method: 'POST', body: fd });
+            if (res.ok) { showToast('Payslip uploaded', 'success'); document.getElementById('uploadPayslipForm').reset(); loadAllPayslips(); }
+            else showToast('Upload failed', 'error');
+        } catch (err) { showToast('Upload failed', 'error'); }
+    });
+
+    async function loadAllPayslips() {
+        try {
+            const res = await fetch('/api/admin/payslips');
+            const payslips = await res.json();
+            const tbody = document.getElementById('payslipsBody');
+            if (payslips.length === 0) { tbody.innerHTML = '<tr><td colspan="7">No payslips</td></tr>'; return; }
+            tbody.innerHTML = '';
+            payslips.forEach(p => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = p.id;
+                row.insertCell(1).innerText = p.fullname;
+                row.insertCell(2).innerText = `${p.month}/${p.year}`;
+                row.insertCell(3).innerText = `$${p.amount}`;
+                row.insertCell(4).innerText = new Date(p.created_at).toLocaleDateString();
+                row.insertCell(5).innerHTML = `<a href="${p.filepath}" target="_blank">📄 View</a>`;
+                row.insertCell(6).innerHTML = `<button class="delete-btn" onclick="deletePayslip(${p.id})">🗑 Delete</button>`;
+            });
+        } catch (err) { showToast('Error loading payslips', 'error'); }
+    }
+
+    async function deletePayslip(id) {
+        if (confirm('Delete this payslip?')) {
+            await fetch(`/api/admin/delete-payslip/${id}`, { method: 'DELETE' });
+            showToast('Deleted', 'success');
+            loadAllPayslips();
+        }
+    }
+
+    // ============ SECURITY LOGS ============
+    async function loadSecurityLogs() {
+        try {
+            const res = await fetch('/api/login-history');
+            if (!res.ok) throw new Error('Unauthorized');
+            const logs = await res.json();
+            const tbody = document.getElementById('securityBody');
+            if (logs.length === 0) { tbody.innerHTML = '<tr><td colspan="6">No logs found</td></tr>'; return; }
+            tbody.innerHTML = '';
+            logs.forEach(log => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = log.id;
+                row.insertCell(1).innerText = log.fullname;
+                row.insertCell(2).innerText = log.email;
+                row.insertCell(3).innerText = log.ip_address;
+                row.insertCell(4).innerText = new Date(log.login_time).toLocaleString();
+                row.insertCell(5).innerText = log.logout_time ? new Date(log.logout_time).toLocaleString() : 'Still logged in';
+            });
+        } catch (err) { showToast('Error loading security logs', 'error'); }
+    }
+
+    // ============ TAB NAVIGATION ============
+    function showTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        if (tab === 'loans') { document.getElementById('loansTab').classList.add('active'); document.querySelectorAll('.tab-btn')[0].classList.add('active'); loadLoans(); }
+        else if (tab === 'users') { document.getElementById('usersTab').classList.add('active'); document.querySelectorAll('.tab-btn')[1].classList.add('active'); loadUsers(); }
+        else if (tab === 'withdrawals') { document.getElementById('withdrawalsTab').classList.add('active'); document.querySelectorAll('.tab-btn')[2].classList.add('active'); loadWithdrawals(); }
+        else if (tab === 'payments') { document.getElementById('paymentsTab').classList.add('active'); document.querySelectorAll('.tab-btn')[3].classList.add('active'); loadPayments(); }
+        else if (tab === 'payslips') { document.getElementById('payslipsTab').classList.add('active'); document.querySelectorAll('.tab-btn')[4].classList.add('active'); loadUsersForPayslip(); loadAllPayslips(); }
+        else if (tab === 'security') { document.getElementById('securityTab').classList.add('active'); document.querySelectorAll('.tab-btn')[5].classList.add('active'); loadSecurityLogs(); }
+    }
+
+    // Initialize
+    checkAdminAccess().then(isAdmin => {
+        if (isAdmin) {
+            loadLoans();
+        }
+    });
+</script>
+</body>
+</html>

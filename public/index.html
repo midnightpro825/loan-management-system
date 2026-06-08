@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastLoan - Get Instant Loans Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', sans-serif;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-fade-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .animate-fade-left {
+            animation: fadeInLeft 0.8s ease forwards;
+        }
+
+        .animate-fade-right {
+            animation: fadeInRight 0.8s ease forwards;
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .delay-1 { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-2 { animation-delay: 0.4s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-3 { animation-delay: 0.6s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-4 { animation-delay: 0.8s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-5 { animation-delay: 1s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-6 { animation-delay: 1.2s; opacity: 0; animation-fill-mode: forwards; }
+
+        /* Theme Variables */
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-primary: #0f2c39;
+            --text-secondary: #666666;
+            --accent-color: #0f2c39;
+            --accent-light: #1a4b6e;
+            --gradient: linear-gradient(135deg, #0f2c39, #1a4b6e);
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            font-size: 2rem;
+        }
+
+        .logo h2 {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        .logo h2 span {
+            color: #6bcbff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--accent-color);
+            padding: 0.5rem 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background: var(--gradient);
+            color: white;
+            border-radius: 2rem;
+        }
+
+        .btn-login {
+            background: var(--gradient);
+            color: white !important;
+            border-radius: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient);
+            color: white;
+            padding: 4rem 5%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-content h1 .highlight {
+            color: #6bcbff;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #6bcbff;
+            color: var(--accent-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            border: 2px solid white;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: var(--accent-color);
+        }
+
+        .hero-image {
+            text-align: center;
+        }
+
+        .hero-image svg {
+            max-width: 100%;
+            border-radius: 1rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 4rem 5%;
+            background: white;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 5%;
+            background: var(--bg-primary);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--accent-color);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Loan Calculator */
+        .calculator {
+            padding: 4rem 5%;
+            background: white;
+        }
+
+        .calculator-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+
+        .calculator-container input,
+        .calculator-container select {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+        }
+
+        .result {
+            background: var(--gradient);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 4rem 5%;
+            background: var(--bg-primary);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            position: relative;
+        }
+
+        .testimonial-card:before {
+            content: '"';
+            font-size: 4rem;
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            color: #6bcbff;
+            opacity: 0.3;
+        }
+
+        .testimonial-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        /* FAQ Section */
+        .faq {
+            padding: 4rem 5%;
+            background: white;
+        }
+
+        .faq-grid {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #ddd;
+            padding: 1rem 0;
+        }
+
+        .faq-question {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 4rem 5%;
+            background: var(--gradient);
+            color: white;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .contact-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-details {
+            margin-top: 1rem;
+        }
+
+        .contact-details p {
+            margin: 0.5rem 0;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border: none;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--accent-color);
+            color: white;
+            padding: 3rem 5%;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin: 0.5rem 0;
+            opacity: 0.8;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Floating WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            .navbar {
+                flex-direction: column;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="logo">
+        <span>🏦</span>
+        <h2>Fast<span>Loan</span></h2>
+    </div>
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#calculator">Calculator</a>
+        <a href="#testimonials">Testimonials</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+        <a href="login.html" class="btn-login">Login</a>
+        <a href="register.html" class="btn-primary" style="background:#6bcbff;">Register</a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="home" class="hero">
+    <div class="hero-content">
+        <h1 class="animate-fade-up">Get <span class="highlight">Instant Loans</span> When You Need Them Most</h1>
+        <p class="animate-fade-up delay-1">Fast approval, low interest rates, and flexible repayment terms. Get funded in 24 hours.</p>
+        <div class="hero-buttons animate-fade-up delay-2">
+            <a href="register.html" class="btn-primary">Apply Now →</a>
+            <a href="#calculator" class="btn-secondary">Calculate Payment</a>
+        </div>
+    </div>
+    <div class="hero-image animate-float">
+        <svg width="100%" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <rect width="500" height="400" fill="#e8f4f8" rx="20"/>
+            
+            <!-- Money Bag -->
+            <circle cx="250" cy="180" r="50" fill="#f39c12" stroke="#e67e22" stroke-width="3"/>
+            <text x="250" y="195" text-anchor="middle" font-size="35" fill="white">💰</text>
+            
+            <!-- Dollar Sign on bag -->
+            <text x="250" y="245" text-anchor="middle" font-size="25" fill="#0f2c39" font-weight="bold">FAST</text>
+            
+            <!-- Coins falling -->
+            <circle cx="140" cy="300" r="18" fill="#f1c40f" stroke="#e67e22" stroke-width="2"/>
+            <circle cx="180" cy="325" r="18" fill="#f1c40f" stroke="#e67e22" stroke-width="2"/>
+            <circle cx="320" cy="300" r="18" fill="#f1c40f" stroke="#e67e22" stroke-width="2"/>
+            <circle cx="360" cy="325" r="18" fill="#f1c40f" stroke="#e67e22" stroke-width="2"/>
+            
+            <!-- Growth Arrow -->
+            <polyline points="80,120 160,90 250,110 340,70 420,100" stroke="#27ae60" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <polygon points="420,100 400,92 408,108" fill="#27ae60"/>
+            
+            <!-- Small stars/sparkles -->
+            <text x="100" y="80" font-size="20">✨</text>
+            <text x="400" y="60" font-size="20">✨</text>
+            <text x="350" y="150" font-size="15">⭐</text>
+            <text x="130" y="130" font-size="15">⭐</text>
+            
+            <!-- Bottom text -->
+            <text x="250" y="375" text-anchor="middle" font-size="13" fill="#0f2c39">Fast Approval • Low Interest • Secure</text>
+        </svg>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<div class="stats">
+    <div class="stat-card animate-fade-up delay-1">
+        <div class="stat-number">10,000+</div>
+        <div>Happy Customers</div>
+    </div>
+    <div class="stat-card animate-fade-up delay-2">
+        <div class="stat-number">$50M+</div>
+        <div>Loans Disbursed</div>
+    </div>
+    <div class="stat-card animate-fade-up delay-3">
+        <div class="stat-number">24hr</div>
+        <div>Quick Approval</div>
+    </div>
+    <div class="stat-card animate-fade-up delay-4">
+        <div class="stat-number">4.9★</div>
+        <div>Customer Rating</div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <h2 class="section-title animate-fade-up">Why Choose FastLoan?</h2>
+    <div class="features-grid">
+        <div class="feature-card animate-fade-left delay-1">
+            <div class="feature-icon">⚡</div>
+            <h3>Instant Approval</h3>
+            <p>Get approved within minutes, no waiting days for a decision.</p>
+        </div>
+        <div class="feature-card animate-fade-up delay-2">
+            <div class="feature-icon">💰</div>
+            <h3>Low Interest Rates</h3>
+            <p>Competitive rates starting from just 5.5% APR.</p>
+        </div>
+        <div class="feature-card animate-fade-right delay-3">
+            <div class="feature-icon">📱</div>
+            <h3>Mobile Money Support</h3>
+            <p>Send and receive payments via M-Pesa, Airtel, and more.</p>
+        </div>
+        <div class="feature-card animate-fade-left delay-4">
+            <div class="feature-icon">🔒</div>
+            <h3>Secure & Safe</h3>
+            <p>Your data is protected with bank-level encryption.</p>
+        </div>
+        <div class="feature-card animate-fade-up delay-5">
+            <div class="feature-icon">💳</div>
+            <h3>Flexible Payments</h3>
+            <p>Pay via bank transfer, card, or mobile money.</p>
+        </div>
+        <div class="feature-card animate-fade-right delay-6">
+            <div class="feature-icon">📄</div>
+            <h3>PDF Agreements</h3>
+            <p>Download your loan agreement instantly.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Loan Calculator -->
+<section id="calculator" class="calculator">
+    <h2 class="section-title animate-fade-up">Loan Calculator</h2>
+    <div class="calculator-container">
+        <input type="number" id="calcAmount" placeholder="Loan Amount ($)" value="5000">
+        <input type="number" id="calcRate" placeholder="Interest Rate (%)" value="8.5" step="0.1">
+        <select id="calcTerm">
+            <option value="3">3 months</option>
+            <option value="6">6 months</option>
+            <option value="12" selected>12 months</option>
+            <option value="24">24 months</option>
+        </select>
+        <div class="result" id="calcResult">
+            Monthly Payment: <strong>$0</strong>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials" class="testimonials">
+    <h2 class="section-title animate-fade-up">What Our Customers Say</h2>
+    <div class="testimonials-grid">
+        <div class="testimonial-card animate-fade-left">
+            <p>"FastLoan saved my business! Got approved in hours and received funds the next day. Highly recommended!"</p>
+            <div class="testimonial-avatar">👨</div>
+            <strong>John M.</strong>
+            <span>★★★★★</span>
+        </div>
+        <div class="testimonial-card animate-fade-up">
+            <p>"The best loan experience ever. Easy application, transparent rates, and great customer support."</p>
+            <div class="testimonial-avatar">👩</div>
+            <strong>Sarah K.</strong>
+            <span>★★★★★</span>
+        </div>
+        <div class="testimonial-card animate-fade-right">
+            <p>"I love the mobile money integration! Made payments so convenient. Will definitely use again."</p>
+            <div class="testimonial-avatar">👨</div>
+            <strong>David O.</strong>
+            <span>★★★★★</span>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section id="faq" class="faq">
+    <h2 class="section-title animate-fade-up">Frequently Asked Questions</h2>
+    <div class="faq-grid">
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">How long does approval take? <span>▼</span></div>
+            <div class="faq-answer">Approval typically takes 5-10 minutes. Funds are disbursed within 24 hours after approval.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">What are the interest rates? <span>▼</span></div>
+            <div class="faq-answer">Interest rates range from 5.5% to 8.5% depending on loan type and amount.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">What documents do I need? <span>▼</span></div>
+            <div class="faq-answer">You need a valid ID (Passport, Driver's License, or National ID) and proof of income.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">Can I pay back early? <span>▼</span></div>
+            <div class="faq-answer">Yes! There are no penalties for early repayment. You can pay anytime.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">Is my information secure? <span>▼</span></div>
+            <div class="faq-answer">Absolutely! We use bank-level encryption to protect your data.</div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="contact">
+    <div class="contact-grid">
+        <div class="contact-info animate-fade-left">
+            <h3>📞 Get in Touch</h3>
+            <p>Have questions? Our support team is here to help 24/7.</p>
+            <div class="contact-details">
+                <p>📍 <strong>Address:</strong> 123 Finance Street, Business District</p>
+                <p>📧 <strong>Email:</strong> support@fastloan.com</p>
+                <p>📱 <strong>Phone:</strong> +1 (555) 123-4567</p>
+                <p>🕒 <strong>Hours:</strong> Monday - Friday, 9AM - 6PM</p>
+            </div>
+        </div>
+        <div class="contact-form animate-fade-right">
+            <h3>Send us a message</h3>
+            <input type="text" id="contactName" placeholder="Your Name">
+            <input type="email" id="contactEmail" placeholder="Your Email">
+            <textarea id="contactMessage" rows="4" placeholder="Your Message"></textarea>
+            <button class="btn-primary" onclick="sendContactMessage()" style="border:none; cursor:pointer;">Send Message →</button>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-grid">
+        <div>
+            <h3>FastLoan</h3>
+            <p>Your trusted partner for quick and easy loans.</p>
+            <div class="social-links">
+                <a href="#">📘</a>
+                <a href="#">🐦</a>
+                <a href="#">📷</a>
+                <a href="#">💼</a>
+            </div>
+        </div>
+        <div class="footer-links">
+            <h4>Quick Links</h4>
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#calculator">Calculator</a>
+            <a href="#testimonials">Testimonials</a>
+        </div>
+        <div class="footer-links">
+            <h4>Support</h4>
+            <a href="#faq">FAQ</a>
+            <a href="#contact">Contact</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms & Conditions</a>
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; 2024 FastLoan. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- Floating WhatsApp Button -->
+<a href="https://wa.me/1234567890?text=Hello%20I%20need%20help%20with%20my%20loan" 
+   target="_blank" 
+   class="whatsapp-float animate-pulse">
+    💬
+</a>
+
+<script>
+    // Loan Calculator
+    function calculateMonthlyPayment(amount, annualRate, months) {
+        let monthlyRate = (annualRate / 100) / 12;
+        if (monthlyRate === 0) return amount / months;
+        return amount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+    }
+
+    function updateCalculator() {
+        let amount = parseFloat(document.getElementById('calcAmount').value);
+        let rate = parseFloat(document.getElementById('calcRate').value);
+        let months = parseInt(document.getElementById('calcTerm').value);
+        if (isNaN(amount) || amount <= 0) {
+            document.getElementById('calcResult').innerHTML = 'Monthly Payment: <strong>$0</strong>';
+            return;
+        }
+        let monthly = calculateMonthlyPayment(amount, rate, months);
+        document.getElementById('calcResult').innerHTML = `Monthly Payment: <strong>$${monthly.toFixed(2)}</strong>`;
+    }
+
+    document.getElementById('calcAmount').addEventListener('input', updateCalculator);
+    document.getElementById('calcRate').addEventListener('input', updateCalculator);
+    document.getElementById('calcTerm').addEventListener('change', updateCalculator);
+    updateCalculator();
+
+    // FAQ Toggle
+    function toggleFAQ(element) {
+        const answer = element.nextElementSibling;
+        answer.classList.toggle('active');
+        const arrow = element.querySelector('span');
+        if (answer.classList.contains('active')) {
+            arrow.innerHTML = '▲';
+        } else {
+            arrow.innerHTML = '▼';
+        }
+    }
+
+    // Contact Form
+    function sendContactMessage() {
+        const name = document.getElementById('contactName').value;
+        const email = document.getElementById('contactEmail').value;
+        const message = document.getElementById('contactMessage').value;
+        
+        if (!name || !email || !message) {
+            alert('Please fill all fields');
+            return;
+        }
+        
+        alert(`Thank you ${name}! We'll respond to ${email} within 24 hours.`);
+        document.getElementById('contactName').value = '';
+        document.getElementById('contactEmail').value = '';
+        document.getElementById('contactMessage').value = '';
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+</script>
+</body>
+</html>

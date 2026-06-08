@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Dashboard - FastLoan</title>
+    <style>
+        /* Dark/Light Mode Variables */
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-primary: #0f2c39;
+            --text-secondary: #666666;
+            --text-muted: #888888;
+            --border-color: #e0e0e0;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --navbar-bg: #0f2c39;
+            --navbar-text: #ffffff;
+            --input-bg: #ffffff;
+            --input-border: #dddddd;
+            --button-primary: #0f2c39;
+            --button-hover: #1b4f66;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --info-bg: #cce5ff;
+            --info-text: #004085;
+            --wallet-gradient: linear-gradient(135deg, #0f2c39, #1a4b6e);
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a2e;
+            --bg-card: #16213e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --text-muted: #888888;
+            --border-color: #2a2a4a;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --navbar-bg: #0f3460;
+            --navbar-text: #e0e0e0;
+            --input-bg: #2a2a4a;
+            --input-border: #3a3a5a;
+            --button-primary: #1a4b6e;
+            --button-hover: #2d6a8f;
+            --success-bg: #1e4620;
+            --success-text: #a5d6a7;
+            --error-bg: #6b1a1a;
+            --error-text: #ffcdd2;
+            --info-bg: #1a3a5c;
+            --info-text: #b3d4ff;
+            --wallet-gradient: linear-gradient(135deg, #1a4b6e, #0f2c39);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        
+        body {
+            background: var(--bg-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--navbar-bg);
+            color: var(--navbar-text);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            transition: background 0.3s ease;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo span { font-size: 1.8rem; }
+        .logo h2 { font-size: 1.5rem; }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background 0.2s;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.1); }
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--navbar-text);
+            border-radius: 2rem;
+            padding: 0.3rem 0.8rem;
+            cursor: pointer;
+            color: var(--navbar-text);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { background: rgba(255,255,255,0.2); }
+
+        /* Container */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
+        /* Wallet Card */
+        .wallet-card {
+            background: var(--wallet-gradient);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .wallet-amount { font-size: 2rem; font-weight: bold; }
+
+        /* Grid Layout */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card h3 { 
+            margin-bottom: 1rem; 
+            color: var(--text-primary); 
+            border-bottom: 2px solid var(--text-primary); 
+            padding-bottom: 0.5rem;
+        }
+        .card h4 { margin: 1rem 0 0.5rem 0; color: var(--text-primary); }
+
+        /* Form Elements */
+        input, select, textarea {
+            width: 100%;
+            padding: 0.7rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--input-border);
+            border-radius: 0.5rem;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6bcbff;
+        }
+
+        /* Buttons */
+        button {
+            background: var(--button-primary);
+            color: white;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background: var(--button-hover); }
+        .pay-btn { background: #28a745; }
+        .pay-btn:hover { background: #218838; }
+        .pdf-btn { background: var(--button-primary); }
+        .withdraw-btn { background: #ffc107; color: #0f2c39; }
+        .withdraw-btn:hover { background: #e0a800; }
+        .save-btn { background: var(--button-primary); }
+
+        /* Status Badges */
+        .status-pending { color: #ffc107; font-weight: bold; }
+        .status-approved { color: #28a745; font-weight: bold; }
+        .status-rejected { color: #dc3545; font-weight: bold; }
+        
+        /* Message Boxes */
+        .message { margin-top: 1rem; padding: 0.5rem; border-radius: 0.5rem; }
+        .success { background: var(--success-bg); color: var(--success-text); }
+        .error { background: var(--error-bg); color: var(--error-text); }
+        .info { background: var(--info-bg); color: var(--info-text); }
+
+        /* Loan Card */
+        .loan-card {
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            background: var(--bg-card);
+            transition: all 0.3s ease;
+        }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+        .paid-badge { background: #28a745; color: white; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.8rem; }
+        .button-group { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+        .button-group button { flex: 1; margin-top: 0; }
+
+        /* Withdrawal & Payslip Items */
+        .withdrawal-item, .payslip-item { border-bottom: 1px solid var(--border-color); padding: 0.5rem 0; }
+        .withdrawal-status-pending { color: #ffc107; font-weight: bold; }
+        .withdrawal-status-approved { color: #28a745; font-weight: bold; }
+        .withdrawal-status-rejected { color: #dc3545; font-weight: bold; }
+
+        /* Banking Details */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .bank-detail { background: var(--info-bg); padding: 0.7rem; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+        .expiry-group { display: flex; gap: 0.5rem; }
+        .expiry-group select { flex: 1; margin-bottom: 1rem; }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--button-primary);
+            animation: spin 0.8s ease infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-container { text-align: center; padding: 2rem; }
+        .loading-container .spinner { width: 40px; height: 40px; }
+
+        /* Toast Notifications */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toast-success { background: #28a745; }
+        .toast-error { background: #dc3545; }
+        .toast-info { background: #17a2b8; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Payment Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: var(--text-primary);
+        }
+        .payment-method-selector { background: var(--info-bg); padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+        .method-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .method-option:hover { border-color: var(--button-primary); background: var(--bg-primary); }
+        .method-option.selected { border-color: #28a745; background: var(--success-bg); }
+        .method-option input { width: auto; margin-right: 1rem; margin-bottom: 0; }
+        .method-option label { flex: 1; cursor: pointer; font-weight: bold; color: var(--text-primary); }
+        .method-desc { font-size: 0.8rem; color: var(--text-secondary); margin-left: 2rem; }
+        .payment-details-group { background: var(--info-bg); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; }
+        .row-2 { display: flex; gap: 0.5rem; }
+        .row-2 input { flex: 1; }
+
+        /* Responsive */
+        @media (max-width: 768px) { 
+            .grid-2 { grid-template-columns: 1fr; }
+            .button-group { flex-direction: column; }
+            .details-grid { grid-template-columns: 1fr; }
+            .expiry-group { flex-direction: column; }
+            .row-2 { flex-direction: column; }
+            .navbar { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">
+        <span>🏦</span>
+        <h2>Fast<span style="color: #6bcbff;">Loan</span></h2>
+    </div>
+    <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="admin.html">Admin Panel</a>
+        <a href="#" id="logoutBtn">Logout</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Wallet Balance Card -->
+    <div class="wallet-card">
+        <div>
+            <div style="font-size: 0.9rem;">Your Wallet Balance</div>
+            <div class="wallet-amount" id="walletBalance">$0</div>
+        </div>
+        <div>💰</div>
+    </div>
+
+    <div class="grid-2">
+        <!-- Apply for Loan Section -->
+        <div class="card">
+            <h3>📝 Apply for a Loan</h3>
+            <form id="loanForm">
+                <select id="loanType" required>
+                    <option value="">Select Loan Type</option>
+                </select>
+                <input type="number" id="amount" placeholder="Loan Amount ($)" min="500" required>
+                <input type="number" id="interestRate" placeholder="Interest Rate (%)" step="0.1" value="8.5" required>
+                <select id="termMonths" required>
+                    <option value="3">3 months</option>
+                    <option value="6">6 months</option>
+                    <option value="12">12 months</option>
+                    <option value="24">24 months</option>
+                </select>
+                <textarea id="purpose" placeholder="Loan Purpose" rows="2"></textarea>
+                <div id="calcResult" style="background:var(--info-bg); padding:0.7rem; border-radius:0.5rem; margin-bottom:1rem;">
+                    Monthly Payment: <strong id="monthlyDisplay">$0</strong>
+                </div>
+                <button type="submit">Submit Application</button>
+                <div id="loanMessage"></div>
+            </form>
+        </div>
+
+        <!-- Upload Document Section -->
+        <div class="card">
+            <h3>📎 Upload ID Document</h3>
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">Passport, Driver's License, or National ID</p>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="document" accept="image/*,.pdf" required>
+                <button type="submit">Upload Document</button>
+                <div id="uploadMessage"></div>
+            </form>
+            <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+                <h4>My Information</h4>
+                <p id="userInfo">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banking Details Section -->
+    <div class="card">
+        <h3>🏦 My Banking Details</h3>
+        <div class="details-grid">
+            <div>
+                <h4>🏦 Bank Account</h4>
+                <div class="bank-detail">
+                    <input type="text" id="bankName" placeholder="Bank Name">
+                    <input type="text" id="accountNumber" placeholder="Account Number">
+                    <input type="text" id="routingNumber" placeholder="Routing Number">
+                </div>
+            </div>
+            <div>
+                <h4>💳 Card Details</h4>
+                <div class="bank-detail">
+                    <select id="cardType">
+                        <option value="">Card Type</option>
+                        <option value="Visa">Visa</option>
+                        <option value="Mastercard">Mastercard</option>
+                        <option value="Amex">American Express</option>
+                    </select>
+                    <input type="text" id="cardNumber" placeholder="Card Number" maxlength="16">
+                    <div class="expiry-group">
+                        <select id="cardExpiryMonth">
+                            <option value="">Month</option>
+                            <option value="01">01 - Jan</option><option value="02">02 - Feb</option>
+                            <option value="03">03 - Mar</option><option value="04">04 - Apr</option>
+                            <option value="05">05 - May</option><option value="06">06 - Jun</option>
+                            <option value="07">07 - Jul</option><option value="08">08 - Aug</option>
+                            <option value="09">09 - Sep</option><option value="10">10 - Oct</option>
+                            <option value="11">11 - Nov</option><option value="12">12 - Dec</option>
+                        </select>
+                        <select id="cardExpiryYear">
+                            <option value="">Year</option>
+                            <option value="2024">2024</option><option value="2025">2025</option>
+                            <option value="2026">2026</option><option value="2027">2027</option>
+                            <option value="2028">2028</option><option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                        </select>
+                    </div>
+                    <input type="text" id="cardCvv" placeholder="CVV" maxlength="4" style="width:100px;">
+                    <input type="text" id="cardHolderName" placeholder="Cardholder Name">
+                </div>
+            </div>
+            <div>
+                <h4>📱 Mobile Money</h4>
+                <div class="bank-detail">
+                    <select id="mobileProvider">
+                        <option value="">Mobile Provider</option>
+                        <option value="M-Pesa">M-Pesa</option>
+                        <option value="Airtel Money">Airtel Money</option>
+                        <option value="MTN Mobile Money">MTN Mobile Money</option>
+                        <option value="Orange Money">Orange Money</option>
+                    </select>
+                    <input type="tel" id="mobileMoneyNumber" placeholder="Mobile Money Number">
+                </div>
+            </div>
+        </div>
+        
+        <h4>💰 Default Payment Preference</h4>
+        <select id="paymentPreference">
+            <option value="">Select Preferred Payment Method</option>
+            <option value="mobile">📱 Mobile Money (For amounts under $100)</option>
+            <option value="card">💳 Card Payment (For amounts $100 - $1000)</option>
+            <option value="bank">🏦 Bank Transfer (For amounts over $1000)</option>
+        </select>
+        
+        <button class="save-btn" onclick="saveBankingDetails()">💾 Save Banking Details</button>
+        <div id="bankingMessage"></div>
+    </div>
+
+    <!-- Withdrawal Section -->
+    <div class="card">
+        <h3>🏦 Withdraw Funds</h3>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">Withdraw money from your wallet</p>
+        
+        <form id="withdrawForm">
+            <input type="number" id="withdrawAmount" placeholder="Amount to withdraw ($)" min="10" step="0.01" required>
+            <select id="withdrawMethod" required>
+                <option value="">Select Method</option>
+                <option value="bank">🏦 Bank Transfer</option>
+                <option value="card">💳 Card Transfer</option>
+                <option value="mobile">📱 Mobile Money</option>
+            </select>
+            <div id="bankFields" style="display:none;">
+                <input type="text" id="withdrawBankName" placeholder="Bank Name">
+                <input type="text" id="withdrawAccountNumber" placeholder="Account Number">
+            </div>
+            <div id="cardFields" style="display:none;">
+                <input type="text" id="withdrawCardNumber" placeholder="Card Number">
+            </div>
+            <div id="mobileFields" style="display:none;">
+                <input type="tel" id="withdrawMobileNumber" placeholder="Mobile Money Number">
+            </div>
+            <button type="submit" class="withdraw-btn">Request Withdrawal</button>
+            <div id="withdrawMessage"></div>
+        </form>
+        
+        <h4 style="margin-top:1rem;">📋 Withdrawal History</h4>
+        <div id="withdrawalHistory" style="max-height: 250px; overflow-y: auto;">Loading...</div>
+    </div>
+
+    <!-- My Payslips Section -->
+    <div class="card">
+        <h3>📄 My Payslips</h3>
+        <div id="myPayslipsList" style="max-height: 300px; overflow-y: auto;">Loading...</div>
+    </div>
+
+    <!-- My Loans Section -->
+    <div class="card">
+        <h3>📋 My Active Loans</h3>
+        <div id="myLoansList">Loading...</div>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let selectedPaymentMethod = null;
+
+    // Toast Notification Function
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification toast-${type}`;
+        const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+        toast.innerHTML = `${icon} ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        document.querySelector('.theme-toggle').innerHTML = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+        showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+    }
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.querySelector('.theme-toggle').innerHTML = '☀️ Light Mode';
+    }
+
+    async function checkAuth() {
+        try {
+            const response = await fetch('/api/me');
+            if (!response.ok) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = await response.json();
+            document.getElementById('walletBalance').innerText = '$' + currentUser.wallet_balance.toFixed(2);
+            document.getElementById('userInfo').innerHTML = `
+                <strong>${currentUser.fullname}</strong><br>
+                ${currentUser.email}<br>
+                ${currentUser.phone ? '📞 ' + currentUser.phone : ''}<br>
+                ${currentUser.work_place ? '🏢 ' + currentUser.work_place : ''}
+            `;
+        } catch (error) {
+            window.location.href = 'login.html';
+        }
+    }
+
+    async function loadBankingDetails() {
+        try {
+            const response = await fetch('/api/get-banking-details');
+            const details = await response.json();
+            if (details) {
+                document.getElementById('bankName').value = details.bank_name || '';
+                document.getElementById('accountNumber').value = details.account_number || '';
+                document.getElementById('routingNumber').value = details.routing_number || '';
+                document.getElementById('cardType').value = details.card_type || '';
+                document.getElementById('cardNumber').value = details.card_number || '';
+                document.getElementById('cardExpiryMonth').value = details.card_expiry_month || '';
+                document.getElementById('cardExpiryYear').value = details.card_expiry_year || '';
+                document.getElementById('cardCvv').value = details.card_cvv || '';
+                document.getElementById('cardHolderName').value = details.card_holder_name || '';
+                document.getElementById('mobileProvider').value = details.mobile_provider || '';
+                document.getElementById('mobileMoneyNumber').value = details.mobile_money || '';
+                document.getElementById('paymentPreference').value = details.payment_preference || '';
+                window.savedBankDetails = details;
+            }
+        } catch (error) {
+            console.log('Error loading banking details');
+        }
+    }
+
+    async function saveBankingDetails() {
+        const bankingData = {
+            bank_name: document.getElementById('bankName').value,
+            account_number: document.getElementById('accountNumber').value,
+            routing_number: document.getElementById('routingNumber').value,
+            card_type: document.getElementById('cardType').value,
+            card_number: document.getElementById('cardNumber').value,
+            card_expiry_month: document.getElementById('cardExpiryMonth').value,
+            card_expiry_year: document.getElementById('cardExpiryYear').value,
+            card_cvv: document.getElementById('cardCvv').value,
+            card_holder_name: document.getElementById('cardHolderName').value,
+            mobile_provider: document.getElementById('mobileProvider').value,
+            mobile_money_number: document.getElementById('mobileMoneyNumber').value,
+            payment_preference: document.getElementById('paymentPreference').value
+        };
+        
+        try {
+            const response = await fetch('/api/save-banking-details', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bankingData)
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast('Banking details saved successfully!', 'success');
+                loadBankingDetails();
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            showToast('Save failed: ' + error.message, 'error');
+        }
+    }
+
+    async function loadLoanTypes() {
+        const response = await fetch('/api/loan-types');
+        const types = await response.json();
+        const select = document.getElementById('loanType');
+        select.innerHTML = '<option value="">Select Loan Type</option>';
+        types.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.id;
+            option.textContent = `${type.name.toUpperCase()} - $${type.min_amount} to $${type.max_amount} at ${type.default_interest}%`;
+            option.dataset.interest = type.default_interest;
+            option.dataset.min = type.min_amount;
+            option.dataset.max = type.max_amount;
+            select.appendChild(option);
+        });
+    }
+
+    document.getElementById('loanType').addEventListener('change', (e) => {
+        const selected = e.target.options[e.target.selectedIndex];
+        if (selected.dataset.interest) {
+            document.getElementById('interestRate').value = selected.dataset.interest;
+            document.getElementById('amount').min = selected.dataset.min;
+            document.getElementById('amount').max = selected.dataset.max;
+        }
+        updateMonthlyPayment();
+    });
+
+    function calculateMonthlyPayment(amount, annualRate, months) {
+        let monthlyRate = (annualRate / 100) / 12;
+        if (monthlyRate === 0) return amount / months;
+        return amount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+    }
+
+    function updateMonthlyPayment() {
+        let amount = parseFloat(document.getElementById('amount').value);
+        let interest = parseFloat(document.getElementById('interestRate').value);
+        let months = parseInt(document.getElementById('termMonths').value);
+        if (isNaN(amount) || amount <= 0) {
+            document.getElementById('monthlyDisplay').innerText = '$0';
+            return;
+        }
+        let monthly = calculateMonthlyPayment(amount, interest, months);
+        document.getElementById('monthlyDisplay').innerText = '$' + monthly.toFixed(2);
+    }
+
+    document.getElementById('amount').addEventListener('input', updateMonthlyPayment);
+    document.getElementById('interestRate').addEventListener('input', updateMonthlyPayment);
+    document.getElementById('termMonths').addEventListener('change', updateMonthlyPayment);
+
+    document.getElementById('loanForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loan_type_id = document.getElementById('loanType').value;
+        const amount = document.getElementById('amount').value;
+        const interest_rate = document.getElementById('interestRate').value;
+        const term_months = document.getElementById('termMonths').value;
+        const purpose = document.getElementById('purpose').value;
+
+        if (!loan_type_id) {
+            showToast('Please select a loan type', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/apply-loan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ loan_type_id, amount, interest_rate, term_months, purpose })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast('Loan application submitted! Awaiting admin approval.', 'success');
+                document.getElementById('loanForm').reset();
+                document.getElementById('amount').value = '5000';
+                document.getElementById('interestRate').value = '8.5';
+                updateMonthlyPayment();
+                loadMyLoans();
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            showToast('Server error', 'error');
+        }
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fileInput = document.getElementById('document');
+        if (!fileInput.files[0]) {
+            showToast('Please select a file', 'error');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('document', fileInput.files[0]);
+
+        try {
+            const response = await fetch('/api/upload-document', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast('Document uploaded successfully!', 'success');
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            showToast('Upload failed', 'error');
+        }
+    });
+
+    // Payment Modal Functions
+    function showPaymentModal(loanId, monthlyPayment, loanAmount) {
+        selectedPaymentMethod = null;
+        
+        const modalHtml = `
+            <div id="paymentModal" class="modal">
+                <div class="modal-content">
+                    <h3 style="color:var(--text-primary); margin-bottom:1rem;">💳 Select Payment Method</h3>
+                    <p style="margin-bottom:1rem;">Loan Payment: <strong>$${monthlyPayment}</strong></p>
+                    
+                    <div class="payment-method-selector">
+                        <div class="method-option" onclick="selectPaymentMethod('mobile')" id="method-mobile">
+                            <div style="display:flex; align-items:center;">
+                                <input type="radio" name="paymentMethod" value="mobile" id="radio-mobile">
+                                <label for="radio-mobile" style="font-weight:bold; color:var(--text-primary);">📱 Mobile Money</label>
+                            </div>
+                            <div class="method-desc">Best for amounts under $100. Instant processing.</div>
+                        </div>
+                        <div class="method-option" onclick="selectPaymentMethod('card')" id="method-card">
+                            <div style="display:flex; align-items:center;">
+                                <input type="radio" name="paymentMethod" value="card" id="radio-card">
+                                <label for="radio-card" style="font-weight:bold; color:var(--text-primary);">💳 Credit/Debit Card</label>
+                            </div>
+                            <div class="method-desc">Best for amounts $100 - $1000. Secure processing.</div>
+                        </div>
+                        <div class="method-option" onclick="selectPaymentMethod('bank')" id="method-bank">
+                            <div style="display:flex; align-items:center;">
+                                <input type="radio" name="paymentMethod" value="bank" id="radio-bank">
+                                <label for="radio-bank" style="font-weight:bold; color:var(--text-primary);">🏦 Bank Transfer</label>
+                            </div>
+                            <div class="method-desc">Best for amounts over $1000. Takes 1-2 business days.</div>
+                        </div>
+                    </div>
+                    
+                    <div id="paymentDetailsSection" style="margin-top: 1rem; display: none;">
+                        <div id="mobileDetails" style="display: none;">
+                            <div class="payment-details-group">
+                                <h4 style="margin-bottom:0.5rem; color:var(--text-primary);">📱 Mobile Money Details</h4>
+                                <input type="tel" id="mobilePhoneNumber" placeholder="Mobile Money Number (e.g., 07XXXXXXXX)">
+                                <select id="mobileProviderSelect">
+                                    <option value="">Select Mobile Provider</option>
+                                    <option value="M-Pesa">M-Pesa</option>
+                                    <option value="Airtel Money">Airtel Money</option>
+                                    <option value="MTN Mobile Money">MTN Mobile Money</option>
+                                    <option value="Orange Money">Orange Money</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="cardDetails" style="display: none;">
+                            <div class="payment-details-group">
+                                <h4 style="margin-bottom:0.5rem; color:var(--text-primary);">💳 Card Payment Details</h4>
+                                <select id="cardTypeSelect">
+                                    <option value="">Card Type</option>
+                                    <option value="Visa">Visa</option>
+                                    <option value="Mastercard">Mastercard</option>
+                                    <option value="Amex">American Express</option>
+                                </select>
+                                <input type="text" id="cardNumberInput" placeholder="Card Number">
+                                <div class="row-2">
+                                    <input type="text" id="cardExpiryMonthInput" placeholder="MM" maxlength="2">
+                                    <input type="text" id="cardExpiryYearInput" placeholder="YY" maxlength="2">
+                                </div>
+                                <input type="text" id="cardCvvInput" placeholder="CVV" maxlength="4">
+                                <input type="text" id="cardHolderNameInput" placeholder="Cardholder Name">
+                            </div>
+                        </div>
+                        <div id="bankDetails" style="display: none;">
+                            <div class="payment-details-group">
+                                <h4 style="margin-bottom:0.5rem; color:var(--text-primary);">🏦 Bank Transfer Details</h4>
+                                <input type="text" id="bankNameInput" placeholder="Bank Name">
+                                <input type="text" id="bankAccountNumberInput" placeholder="Account Number">
+                                <input type="text" id="bankRoutingNumberInput" placeholder="Routing Number (Optional)">
+                                <input type="text" id="bankAccountNameInput" placeholder="Account Holder Name">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+                        <button onclick="closePaymentModal()" style="background:#6c757d;">Cancel</button>
+                        <button onclick="collectPaymentDetailsAndConfirm(${loanId}, ${monthlyPayment})" style="background:#28a745;">Submit Payment</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        if (monthlyPayment < 100) {
+            selectPaymentMethod('mobile');
+        } else if (monthlyPayment <= 1000) {
+            selectPaymentMethod('card');
+        } else {
+            selectPaymentMethod('bank');
+        }
+        
+        if (window.savedBankDetails) {
+            if (window.savedBankDetails.mobile_money) {
+                document.getElementById('mobilePhoneNumber') && (document.getElementById('mobilePhoneNumber').value = window.savedBankDetails.mobile_money);
+            }
+            if (window.savedBankDetails.card_number) {
+                document.getElementById('cardNumberInput') && (document.getElementById('cardNumberInput').value = window.savedBankDetails.card_number);
+                document.getElementById('cardHolderNameInput') && (document.getElementById('cardHolderNameInput').value = window.savedBankDetails.card_holder_name);
+            }
+            if (window.savedBankDetails.bank_name) {
+                document.getElementById('bankNameInput') && (document.getElementById('bankNameInput').value = window.savedBankDetails.bank_name);
+                document.getElementById('bankAccountNumberInput') && (document.getElementById('bankAccountNumberInput').value = window.savedBankDetails.account_number);
+            }
+        }
+    }
+    
+    function selectPaymentMethod(method) {
+        selectedPaymentMethod = method;
+        document.querySelectorAll('.method-option').forEach(opt => opt.classList.remove('selected'));
+        document.getElementById(`method-${method}`).classList.add('selected');
+        document.getElementById(`radio-${method}`).checked = true;
+        
+        const detailsSection = document.getElementById('paymentDetailsSection');
+        const mobileDetails = document.getElementById('mobileDetails');
+        const cardDetails = document.getElementById('cardDetails');
+        const bankDetails = document.getElementById('bankDetails');
+        
+        detailsSection.style.display = 'block';
+        mobileDetails.style.display = 'none';
+        cardDetails.style.display = 'none';
+        bankDetails.style.display = 'none';
+        
+        if (method === 'mobile') mobileDetails.style.display = 'block';
+        else if (method === 'card') cardDetails.style.display = 'block';
+        else if (method === 'bank') bankDetails.style.display = 'block';
+    }
+    
+    function closePaymentModal() {
+        const modal = document.getElementById('paymentModal');
+        if (modal) modal.remove();
+    }
+    
+    async function collectPaymentDetailsAndConfirm(loanId, amount) {
+        if (!selectedPaymentMethod) {
+            showToast('Please select a payment method', 'error');
+            return;
+        }
+        
+        let payment_details = '';
+        let phone_number = null;
+        let card_details = null;
+        let bank_account = null;
+        
+        if (selectedPaymentMethod === 'mobile') {
+            phone_number = document.getElementById('mobilePhoneNumber')?.value;
+            const provider = document.getElementById('mobileProviderSelect')?.value;
+            if (!phone_number) {
+                showToast('Please enter your mobile money number', 'error');
+                return;
+            }
+            payment_details = `${provider}: ${phone_number}`;
+        } 
+        else if (selectedPaymentMethod === 'card') {
+            const cardNumber = document.getElementById('cardNumberInput')?.value;
+            const expiryMonth = document.getElementById('cardExpiryMonthInput')?.value;
+            const expiryYear = document.getElementById('cardExpiryYearInput')?.value;
+            const cvv = document.getElementById('cardCvvInput')?.value;
+            if (!cardNumber || !expiryMonth || !expiryYear || !cvv) {
+                showToast('Please fill all card details', 'error');
+                return;
+            }
+            card_details = `****${cardNumber.slice(-4)} (Exp: ${expiryMonth}/${expiryYear})`;
+            payment_details = card_details;
+        } 
+        else if (selectedPaymentMethod === 'bank') {
+            const bankName = document.getElementById('bankNameInput')?.value;
+            const accountNumber = document.getElementById('bankAccountNumberInput')?.value;
+            if (!bankName || !accountNumber) {
+                showToast('Please enter bank name and account number', 'error');
+                return;
+            }
+            bank_account = `${bankName}: ${accountNumber}`;
+            payment_details = bank_account;
+        }
+        
+        closePaymentModal();
+        
+        try {
+            const response = await fetch('/api/make-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    loan_id: loanId, 
+                    amount: amount, 
+                    payment_method: selectedPaymentMethod,
+                    payment_details: payment_details,
+                    phone_number: phone_number,
+                    card_details: card_details,
+                    bank_account: bank_account
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast(`Payment request submitted! Remaining balance: $${data.newBalance}`, 'success');
+                loadMyLoans();
+                checkAuth();
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            showToast('Payment failed', 'error');
+        }
+    }
+
+    async function downloadAgreement(loanId) {
+        window.open(`/api/download-agreement/${loanId}`, '_blank');
+    }
+
+    async function loadMyLoans() {
+        const container = document.getElementById('myLoansList');
+        container.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading loans...</p></div>';
+        
+        try {
+            const response = await fetch('/api/my-loans');
+            const loans = await response.json();
+            if (loans.length === 0) {
+                container.innerHTML = '<p>No loan applications yet. Apply for your first loan above!</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            loans.forEach(loan => {
+                const remaining = loan.remaining_balance || loan.total_payable;
+                const isPaid = remaining <= 0;
+                const isApproved = loan.status === 'approved';
+                
+                const loanDiv = document.createElement('div');
+                loanDiv.className = 'loan-card';
+                loanDiv.innerHTML = `
+                    <div class="flex-between">
+                        <strong style="font-size: 1.1rem;">🏦 ${loan.loan_type_name.toUpperCase()}</strong>
+                        <span class="status-${loan.status}">${loan.status.toUpperCase()}</span>
+                    </div>
+                    <div class="flex-between">
+                        <span>💰 Amount: <strong>$${parseFloat(loan.amount).toFixed(2)}</strong></span>
+                        <span>📅 Monthly: <strong>$${parseFloat(loan.monthly_payment).toFixed(2)}</strong></span>
+                        <span>⏱️ Term: ${loan.term_months} months</span>
+                    </div>
+                    <div class="flex-between">
+                        <span>💵 Remaining: <strong style="color: var(--text-primary);">$${parseFloat(remaining).toFixed(2)}</strong></span>
+                        <span>📊 Total Payable: $${parseFloat(loan.total_payable).toFixed(2)}</span>
+                    </div>
+                    ${isApproved && !isPaid ? `
+                        <div class="button-group">
+                            <button class="pay-btn" onclick="showPaymentModal(${loan.id}, ${loan.monthly_payment}, ${loan.amount})">
+                                💰 Make Payment
+                            </button>
+                            <button class="pdf-btn" onclick="downloadAgreement(${loan.id})">
+                                📄 Download PDF
+                            </button>
+                        </div>
+                    ` : ''}
+                    ${isPaid ? '<div style="text-align:center; margin-top:0.5rem;"><span class="paid-badge">✅ FULLY PAID</span></div>' : ''}
+                    ${loan.status === 'pending' ? '<div style="text-align:center; margin-top:0.5rem;"><span style="color:#ffc107;">⏳ Waiting for admin approval</span></div>' : ''}
+                `;
+                container.appendChild(loanDiv);
+            });
+        } catch (error) {
+            container.innerHTML = '<p>Error loading loans. Please refresh the page.</p>';
+        }
+    }
+
+    async function loadMyPayslips() {
+        const container = document.getElementById('myPayslipsList');
+        container.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading payslips...</p></div>';
+        
+        try {
+            const response = await fetch('/api/my-payslips');
+            const payslips = await response.json();
+            if (payslips.length === 0) {
+                container.innerHTML = '<p>No payslips available yet.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            payslips.forEach(p => {
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const monthName = monthNames[parseInt(p.month) - 1];
+                container.innerHTML += `
+                    <div class="payslip-item">
+                        <div class="flex-between">
+                            <span>📄 ${monthName} ${p.year}</span>
+                            <span><strong>$${parseFloat(p.amount).toFixed(2)}</strong></span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Uploaded: ${new Date(p.created_at).toLocaleDateString()}
+                        </div>
+                        <a href="${p.filepath}" target="_blank" style="color: #6bcbff; font-size: 0.85rem;">View Payslip →</a>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            container.innerHTML = '<p>Error loading payslips</p>';
+        }
+    }
+
+    // Withdrawal Functions
+    document.getElementById('withdrawMethod').addEventListener('change', (e) => {
+        const method = e.target.value;
+        document.getElementById('bankFields').style.display = method === 'bank' ? 'block' : 'none';
+        document.getElementById('cardFields').style.display = method === 'card' ? 'block' : 'none';
+        document.getElementById('mobileFields').style.display = method === 'mobile' ? 'block' : 'none';
+        
+        if (method === 'bank') {
+            document.getElementById('withdrawBankName').value = document.getElementById('bankName').value;
+            document.getElementById('withdrawAccountNumber').value = document.getElementById('accountNumber').value;
+        } else if (method === 'card') {
+            document.getElementById('withdrawCardNumber').value = document.getElementById('cardNumber').value;
+        } else if (method === 'mobile') {
+            document.getElementById('withdrawMobileNumber').value = document.getElementById('mobileMoneyNumber').value;
+        }
+    });
+
+    document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const method = document.getElementById('withdrawMethod').value;
+        
+        if (!amount || amount < 10) {
+            showToast('Minimum withdrawal amount is $10', 'error');
+            return;
+        }
+        
+        if (!method) {
+            showToast('Please select a withdrawal method', 'error');
+            return;
+        }
+        
+        let bank_name = null, account_number = null, card_number = null, mobile_number = null;
+        
+        if (method === 'bank') {
+            bank_name = document.getElementById('withdrawBankName').value;
+            account_number = document.getElementById('withdrawAccountNumber').value;
+            if (!bank_name || !account_number) {
+                showToast('Please enter bank details', 'error');
+                return;
+            }
+        } else if (method === 'card') {
+            card_number = document.getElementById('withdrawCardNumber').value;
+            if (!card_number) {
+                showToast('Please enter card number', 'error');
+                return;
+            }
+        } else {
+            mobile_number = document.getElementById('withdrawMobileNumber').value;
+            if (!mobile_number) {
+                showToast('Please enter mobile money number', 'error');
+                return;
+            }
+        }
+        
+        try {
+            const response = await fetch('/api/request-withdrawal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount, method, bank_name, account_number, card_number, mobile_number })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast('Withdrawal request submitted! Admin will process it shortly.', 'success');
+                document.getElementById('withdrawForm').reset();
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('bankFields').style.display = 'none';
+                document.getElementById('cardFields').style.display = 'none';
+                document.getElementById('mobileFields').style.display = 'none';
+                document.getElementById('withdrawMethod').value = '';
+                loadWithdrawalHistory();
+                checkAuth();
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            showToast('Server error', 'error');
+        }
+    });
+
+    async function loadWithdrawalHistory() {
+        const container = document.getElementById('withdrawalHistory');
+        container.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading history...</p></div>';
+        
+        try {
+            const response = await fetch('/api/my-withdrawals');
+            const withdrawals = await response.json();
+            if (withdrawals.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary);">No withdrawal requests yet.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            withdrawals.forEach(w => {
+                const statusClass = `withdrawal-status-${w.status}`;
+                const methodIcon = w.method === 'bank' ? '🏦' : (w.method === 'card' ? '💳' : '📱');
+                container.innerHTML += `
+                    <div class="withdrawal-item">
+                        <div class="flex-between">
+                            <span>${methodIcon} $${parseFloat(w.amount).toFixed(2)}</span>
+                            <span class="${statusClass}">${w.status.toUpperCase()}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Requested: ${new Date(w.created_at).toLocaleDateString()}
+                            ${w.processed_at ? `<br>Processed: ${new Date(w.processed_at).toLocaleDateString()}` : ''}
+                        </div>
+                        ${w.admin_notes ? `<div style="font-size: 0.8rem; margin-top: 0.3rem;">📝 Note: ${w.admin_notes}</div>` : ''}
+                    </div>
+                `;
+            });
+        } catch (error) {
+            container.innerHTML = '<p>Error loading history</p>';
+        }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = 'login.html';
+    });
+
+    // Make functions global
+    window.selectPaymentMethod = selectPaymentMethod;
+    window.closePaymentModal = closePaymentModal;
+    window.collectPaymentDetailsAndConfirm = collectPaymentDetailsAndConfirm;
+    window.showPaymentModal = showPaymentModal;
+    window.saveBankingDetails = saveBankingDetails;
+    window.toggleTheme = toggleTheme;
+    window.showToast = showToast;
+
+    // Initialize everything
+    checkAuth();
+    loadLoanTypes();
+    loadMyLoans();
+    loadBankingDetails();
+    loadWithdrawalHistory();
+    loadMyPayslips();
+    updateMonthlyPayment();
+</script>
+</body>
+</html>

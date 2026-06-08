@@ -1,0 +1,8 @@
+node_modules/
+loans.db
+.env
+*.log
+public/uploads/
+.DS_Store
+*.lock
+package-lock.json
